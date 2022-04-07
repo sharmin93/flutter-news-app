@@ -30,127 +30,141 @@ class _NewsListState extends State<NewsList> {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeMoodController>(context);
-    final newsListProvider = Provider.of<NewsListController>(context);
+    final themeController = Provider.of<ThemeMoodController>(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            UdText(
-              text: 'Health News',
-              fontWeight: FontWeight.bold,
-              color: ProjectColors.white,
-              fontSize: UdDesign.fontSize(18),
-            ),
-            UdBasicButton(
-              backgroundColor:
-                  themeProvider.darkMood ? Colors.black : Colors.white,
-              height: UdDesign.pt(30),
-              width: UdDesign.pt(80),
-              titleFontSize: UdDesign.fontSize(16),
-              borderRadius: UdDesign.pt(4),
-              title: "Theme",
-              titleColor: themeProvider.darkMood ? Colors.white : Colors.black,
-              onTap: () {
-                themeProvider.darkMood
-                    ? themeProvider.getLightMood()
-                    : themeProvider.getDarkMood();
-              },
-            )
-          ],
-        ),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          newsListProvider.dataState == DataState.loaded
-              ? Expanded(
-                  child: SizedBox(
-                    child: newsListProvider.newsListResponse.articles != null
-                        ? ListView.builder(
-                            itemCount: newsListProvider
-                                    .newsListResponse.articles?.length ??
-                                3,
-                            shrinkWrap: false,
-                            itemBuilder: (context, index) {
-                              return InkWell(
-                                onTap: () {
-                                  newsListProvider.index = index;
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const NewsListDetails(),
+      body: Consumer<NewsListController>(
+        builder: (_, newListController, __) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              newListController.dataState == DataState.loaded
+                  ? Expanded(
+                      child: SizedBox(
+                        child: newListController.newsListResponse.articles !=
+                                null
+                            ? ListView.builder(
+                                itemCount: newListController
+                                    .newsListResponse.articles?.length,
+                                shrinkWrap: false,
+                                itemBuilder: (context, index) {
+                                  return InkWell(
+                                    onTap: () {
+                                      newListController.index = index;
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => NewsListDetails(
+                                              newsController: newListController,
+                                              themeController: themeController),
+                                        ),
+                                      );
+                                    },
+                                    child: UdCard(
+                                      backgroundColor: themeController.darkMood
+                                          ? Colors.black
+                                          : Colors.white,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          //author name//
+                                          newListController
+                                                      .newsListResponse
+                                                      .articles?[index]
+                                                      .author !=
+                                                  null
+                                              ? UdText(
+                                                  color:
+                                                      themeController.darkMood
+                                                          ? Colors.white
+                                                          : Colors.black,
+                                                  text:
+                                                      'Author Name: ${newListController.newsListResponse.articles?[index].author!.toString()}')
+                                              : UdText(text: 'No Author name'),
+
+                                          UdGapY(
+                                            value: 10,
+                                          ),
+
+                                          //title//
+                                          newListController.newsListResponse
+                                                      .articles?[index].title !=
+                                                  null
+                                              ? UdText(
+                                                  fontWeight: FontWeight.w500,
+                                                  color:
+                                                      themeController.darkMood
+                                                          ? Colors.white
+                                                          : Colors.black,
+                                                  fontSize:
+                                                      UdDesign.fontSize(14),
+                                                  text:
+                                                      'Title: ${newListController.newsListResponse.articles?[index].title!.toString()}')
+                                              : UdText(
+                                                  text: 'No title',
+                                                ),
+                                          UdGapY(
+                                            value: 10,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   );
-                                },
-                                child: UdCard(
-                                  backgroundColor: themeProvider.darkMood
-                                      ? Colors.black
-                                      : Colors.white,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      //author name//
-                                      newsListProvider.newsListResponse
-                                                  .articles?[index].author !=
-                                              null
-                                          ? UdText(
-                                              color: themeProvider.darkMood
-                                                  ? Colors.white
-                                                  : Colors.black,
-                                              text:
-                                                  'Author Name: ${newsListProvider.newsListResponse.articles?[index].author!.toString()}')
-                                          : UdText(text: 'No Author name'),
-
-                                      UdGapY(
-                                        value: 10,
-                                      ),
-
-                                      //title//
-                                      newsListProvider.newsListResponse
-                                                  .articles?[index].title !=
-                                              null
-                                          ? UdText(
-                                              fontWeight: FontWeight.w500,
-                                              color: themeProvider.darkMood
-                                                  ? Colors.white
-                                                  : Colors.black,
-                                              fontSize: UdDesign.fontSize(14),
-                                              text:
-                                                  'Title: ${newsListProvider.newsListResponse.articles?[index].title!.toString()}')
-                                          : UdText(
-                                              text: 'No title',
-                                            ),
-                                      UdGapY(
-                                        value: 10,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            })
-                        : const SizedBox(),
-                  ),
-                )
-              : const SizedBox(),
-          newsListProvider.dataState == DataState.empty
-              ? Center(
-                  child: UdText(
-                      text: 'No news found.',
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                      fontSize: UdDesign.fontSize(12)),
-                )
-              : const SizedBox(),
-          newsListProvider.dataState == DataState.loading
-              ? Center(
-                  child: CircleLoader(),
-                )
-              : const SizedBox(),
-        ],
+                                })
+                            : const SizedBox(),
+                      ),
+                    )
+                  : const SizedBox(),
+              newListController.dataState == DataState.empty
+                  ? Center(
+                      child: UdText(
+                          text: 'No news found.',
+                          fontWeight: FontWeight.w500,
+                          color: themeController.darkMood
+                              ? Colors.white
+                              : Colors.black,
+                          fontSize: UdDesign.fontSize(12)),
+                    )
+                  : const SizedBox(),
+              newListController.dataState == DataState.error
+                  ? Center(
+                      child: Column(
+                        children: [
+                          UdText(
+                              text:
+                                  'Something went wrong. Please try again later.',
+                              fontWeight: FontWeight.w500,
+                              color: themeController.darkMood
+                                  ? Colors.white
+                                  : Colors.black,
+                              fontSize: UdDesign.fontSize(12)),
+                          UdGapY(
+                            value: 10,
+                          ),
+                          UdBasicButton(
+                            onTap: () {
+                              newListController.getNews();
+                            },
+                            width: UdDesign.pt(100),
+                            backgroundColor: ProjectColors.themeBlue,
+                            borderRadius: UdDesign.pt(4),
+                            height: UdDesign.pt(48),
+                            title: "Try again",
+                            titleColor: Colors.white,
+                            titleFontSize: UdDesign.fontSize(16),
+                          ),
+                        ],
+                      ),
+                    )
+                  : const SizedBox(),
+              newListController.dataState == DataState.loading
+                  ? Center(
+                      child: CircleLoader(),
+                    )
+                  : const SizedBox(),
+            ],
+          );
+        },
       ),
     );
   }

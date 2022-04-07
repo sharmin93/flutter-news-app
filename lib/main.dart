@@ -22,14 +22,14 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeMoodController>(context);
     return MaterialApp(
       title: 'Flutter news app',
       darkTheme: ThemeData.dark(),
-      themeMode: themeProvider.darkMood ? ThemeMode.dark : ThemeMode.light,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      themeMode: context.watch<ThemeMoodController>().darkMood
+          ? ThemeMode.dark
+          : ThemeMode.light,
+      theme:
+          ThemeData(primarySwatch: Colors.blue, backgroundColor: Colors.white),
       home: const HomePage(),
     );
   }

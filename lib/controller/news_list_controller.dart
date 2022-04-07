@@ -13,26 +13,20 @@ class NewsListController extends ChangeNotifier {
   getNews() async {
     dataState = DataState.loading;
     try {
-      final NewsListResponse res = await getNewsListApi.getNewsRequest();
-      if (res != null && res.status == 'ok') {
-        newsListResponse = res;
-        dataState = DataState.loaded;
+      final NewsListResponse response = await getNewsListApi.getNewsRequest();
+      if (response.status == 'ok') {
+        if (response.articles != null && response.articles!.isNotEmpty) {
+          newsListResponse = response;
+          dataState = DataState.loaded;
+        } else {
+          dataState = DataState.empty;
+        }
       } else {
-        dataState = DataState.empty;
-      }
-      if (kDebugMode) {
-        print(res);
-      }
-      if (kDebugMode) {
-        print('newsResponse:  $newsListResponse');
+        dataState = DataState.error;
       }
     } catch (e) {
       dataState = DataState.error;
-      if (kDebugMode) {
-        print('error$e');
-      }
     }
-
     notifyListeners();
   }
 }
